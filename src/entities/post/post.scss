@@ -1,7 +1,6 @@
 %text-style {
-  color: #3b3e49;
   margin: 0;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .post {
@@ -11,19 +10,28 @@
   flex-direction: column;
   padding: 20px;
   background-color: #fff;
-  border: 12px;
   box-shadow: 0px 4px 8px 0px rgba(92, 107, 192, 0.2),
     0px 2px 4px 0px rgba(59, 69, 123, 0.2);
+  margin-bottom: 15px;
 
   &__header {
     @extend %text-style;
 
+    padding: 5px;
+    border-radius: 10px;
+    background-color: beige;
     font-size: 20px;
+    color: #3b3e49;
   }
 
   &__description {
     @extend %text-style;
 
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-top: 10px;
     font-size: 18px;
+    color: #7c7d7e;
   }
 }

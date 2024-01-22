@@ -1,5 +1,5 @@
-import PostCards from '../../features/post-cards/post-cards';
+import Posts from '../../features/posts/posts';
 
 export default function Main() {
-  return <PostCards />;
+  return <Posts />;
 }

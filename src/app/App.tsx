@@ -1,13 +1,13 @@
-import Main from '../pages/main/main'
-import './App.css'
+import { Route, Routes } from 'react-router-dom';
+import Main from '../pages/main/main';
+import './app.scss';
 
-function App() {
-
+export default function App() {
   return (
     <>
-    <Main />
+      <Routes>
+        <Route path="/" element={<Main />}></Route>
+      </Routes>
     </>
-  )
+  );
 }
-
-export default App

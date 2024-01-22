@@ -1,8 +1,4 @@
-.post-cards {
+.posts {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-
-  &__item {
-    gap: 12px;
-  }
 }
