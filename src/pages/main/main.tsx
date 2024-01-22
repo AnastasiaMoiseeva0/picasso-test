@@ -1,7 +1,5 @@
-import PostCard from "../../entities/post-card/post-card";
+import PostCards from '../../features/post-cards/post-cards';
 
 export default function Main() {
-    return (
-      <PostCard />
-    )
+  return <PostCards />;
 }

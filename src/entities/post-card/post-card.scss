@@ -1,0 +1,29 @@
+%text-style {
+  color: #3b3e49;
+  margin: 0;
+  font-weight: 500;
+}
+
+.post {
+  min-width: 320px;
+  max-width: 709px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #fff;
+  border: 12px;
+  box-shadow: 0px 4px 8px 0px rgba(92, 107, 192, 0.2),
+    0px 2px 4px 0px rgba(59, 69, 123, 0.2);
+
+  &__header {
+    @extend %text-style;
+
+    font-size: 20px;
+  }
+
+  &__description {
+    @extend %text-style;
+
+    font-size: 18px;
+  }
+}
