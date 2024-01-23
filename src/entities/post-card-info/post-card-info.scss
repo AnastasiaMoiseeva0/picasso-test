@@ -7,7 +7,6 @@
   display: flex;
   max-width: 1280px;
   margin: 0 auto;
-  justify-content: center;
   align-items: baseline;
 
   &__container {
@@ -36,5 +35,12 @@
     &:focus {
       outline: none;
     }
+  }
+
+  &__loading {
+    @extend %text-style;
+
+    font-size: 20px;
+    color: #7c7d7e;
   }
 }
