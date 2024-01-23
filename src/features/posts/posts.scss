@@ -1,6 +1,9 @@
 .posts {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
+  position: relative;
+  height: 100vh;
+  overflow-y: scroll;
 
   &__item {
     position: absolute;

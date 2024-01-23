@@ -18,24 +18,29 @@ export default function PostCardInfo({ id }: PostCardInfoProps) {
   } else if (isSuccess) {
     content = (
       <>
-        <Button
-          className="post-info__button"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
-          size="small"
-          variant="text"
-        >
-          Назад
-        </Button>
-        <section className="post-info__container">
-          <header className="post-info__header">
-            {post?.id} <span className="post-info__title">{post?.title}</span>
-          </header>
-          <p className="post-info__description">{post?.body}</p>
-        </section>
+        <header className="post-info__header">
+          {post?.id} <span className="post-info__title">{post?.title}</span>
+        </header>
+        <p className="post-info__description">{post?.body}</p>
       </>
     );
   }
 
-  return <main className="post-info">{content}</main>;
+  return (
+    <main className="post-info">
+      <Button
+        className="post-info__button"
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(-1)}
+        size="small"
+        variant="text"
+        sx={{
+          paddingTop: '1rem',
+        }}
+      >
+        Назад
+      </Button>
+      <section className="post-info__container">{content}</section>
+    </main>
+  );
 }

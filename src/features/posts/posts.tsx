@@ -1,19 +1,19 @@
 import './posts.scss';
-import { useLayoutEffect, useRef, useEffect } from 'react';
-import Post from '../../entities/post/post';
+import { useRef, useEffect } from 'react';
+import Post, { IPost } from '../../entities/post/post';
 import { postApi } from '../../shared/api';
-import useuseVirtualItemsHook from './model/virtual-items-hook';
+import useVirtualItemsHook from './model/virtual-items-hook';
+
+const ITEM_HEIGHT = 162;
+const CONTAINER_HEIGHT = 600;
 
 export default function Posts() {
-  const {
-    virtualItems,
-    setScrollTop,
-    setAllItems,
-    allItems,
-    page,
-    setIsPageUploading,
-    isPageUploading,
-  } = useuseVirtualItemsHook();
+  const scrollElementRef = useRef<HTMLDivElement>(null);
+  const { items, addItems, page } = useVirtualItemsHook<IPost>(
+    scrollElementRef!,
+    ITEM_HEIGHT,
+    CONTAINER_HEIGHT
+  );
 
   const { data: posts } = postApi.useGetAllPostsQuery({
     limit: 10,
@@ -21,41 +21,21 @@ export default function Posts() {
   });
 
   useEffect(() => {
-    setAllItems([...allItems, ...(posts || [])]);
-    setIsPageUploading(false);
+    addItems(posts || []);
   }, [posts]);
-
-  const scrollElementRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    function handlerScroll(e: Event) {
-      const scrollElement = (e.target as Document).documentElement;
-
-      if (scrollElement === null) {
-        return;
-      }
-
-      const scrollTop = scrollElement!.scrollTop;
-
-      setScrollTop(scrollTop);
-    }
-
-    document.addEventListener('scroll', handlerScroll);
-    return () => document.removeEventListener('scroll', handlerScroll);
-  }, [isPageUploading]);
 
   return (
     <main className="posts" ref={scrollElementRef}>
-      {virtualItems?.map((virtualItem) => {
-        const post = (allItems || [])[virtualItem.index];
+      {items?.map(({ data: post, offsetTop }) => {
         return (
           <section
             className="posts__item"
             style={{
-              transform: `translateY(${virtualItem.offsetTop}px)`,
+              transform: `translateY(${offsetTop}px)`,
             }}
+            key={post.id}
           >
-            <Post post={post} key={post.id} />
+            <Post post={post} />
           </section>
         );
       })}

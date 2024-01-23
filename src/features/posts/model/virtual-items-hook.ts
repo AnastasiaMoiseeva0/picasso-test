@@ -1,11 +1,19 @@
-import { useMemo, useState } from 'react';
-import { itemHeight, containerHeight, overscan } from '../../../shared/consts';
-import { IPost } from '../../../entities/post/post';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { overscan } from '../../../shared/consts';
 
-export default function useVirtualItemsHook() {
+export type VirtialItem<T> = {
+  data: T;
+  offsetTop: number;
+};
+
+export default function useVirtualItemsHook<T>(
+  ref: React.RefObject<HTMLElement>,
+  itemHeight: number,
+  containerHeight: number
+) {
   const [scrollTop, setScrollTop] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
-  const [allItems, setAllItems] = useState<IPost[]>([]);
+  const [allItems, setAllItems] = useState<T[]>([]);
   const [isPageUploading, setIsPageUploading] = useState<boolean>(false);
 
   const virtualItems = useMemo(() => {
@@ -38,13 +46,43 @@ export default function useVirtualItemsHook() {
     return virtualItems;
   }, [scrollTop, allItems?.length]);
 
+  useLayoutEffect(() => {
+    const currentRef = ref.current;
+
+    function handlerScroll(e: Event) {
+      const scrollElement = e.target as HTMLElement;
+
+      if (scrollElement === null) {
+        return;
+      }
+
+      const scrollTop = scrollElement!.scrollTop;
+
+      setScrollTop(scrollTop);
+    }
+
+    currentRef?.addEventListener('scroll', handlerScroll);
+    return () => currentRef?.removeEventListener('scroll', handlerScroll);
+  }, [isPageUploading, ref]);
+
+  const items = useMemo(() => {
+    return virtualItems.map(({ index, offsetTop }) => ({
+      data: allItems[index],
+      offsetTop,
+    }));
+  }, [virtualItems, allItems]);
+
+  const addItems = useCallback(
+    (newItems: T[]) => {
+      setAllItems([...allItems, ...newItems]);
+      setIsPageUploading(false);
+    },
+    [setAllItems, allItems]
+  );
+
   return {
-    virtualItems,
-    setScrollTop,
-    setAllItems,
-    allItems,
+    addItems,
     page,
-    setIsPageUploading,
-    isPageUploading,
+    items,
   };
 }
