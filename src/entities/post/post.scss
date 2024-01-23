@@ -34,4 +34,10 @@
     font-size: 18px;
     color: #7c7d7e;
   }
+
+  &__button {
+    &:focus {
+      outline: none;
+    }
+  }
 }

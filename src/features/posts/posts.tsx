@@ -1,71 +1,91 @@
 import './posts.scss';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useMemo, useState, useEffect } from 'react';
 import Post from '../../entities/post/post';
 import { IPost } from '../../entities/post/post';
 import { postApi } from '../../shared/api';
+import { itemHeight, containerHeight, overscan } from '../../shared/consts';
 
 export default function Posts() {
-  const [currentPostStart, setCurrentPostStart] = useState<number>(0);
-  const [isMyFetching, setIsFetchingDown] = useState<boolean>(false);
-  const [isMyFetchingUp, setIsMyFetchingUp] = useState<boolean>(false);
-  const { data: posts, isLoading } = postApi.useGetAllPostsQuery({
+  const [scrollTop, setScrollTop] = useState<number>(0);
+  const [page, setPage] = useState(0);
+
+  const { data: posts } = postApi.useGetAllPostsQuery({
     limit: 10,
-    start: currentPostStart,
+    start: page * 10,
   });
 
-  useEffect(() => {
-    if (isMyFetching) {
-      setCurrentPostStart((prev) => {
-        return prev < 90 ? prev + 5 : prev;
-      });
-      setIsFetchingDown(false);
-    }
-  }, [isMyFetching]);
+  const [allItems, setAllItems] = useState<IPost[]>([]);
+  const [isPageUploading, setIsPageUploading] = useState(false);
 
   useEffect(() => {
-    if (isMyFetchingUp) {
-      setCurrentPostStart((prev) => {
-        return prev > 0 ? prev - 5 : prev;
-      });
-      setIsMyFetchingUp(false);
-    }
-  }, [isMyFetchingUp]);
+    setAllItems([...allItems, ...(posts || [])]);
+    setIsPageUploading(false);
+  }, [posts]);
 
-  useEffect(() => {
-    document.addEventListener('scroll', scrollHandler);
-    return () => {
-      document.removeEventListener('scroll', scrollHandler);
-    };
-  }, []);
+  const scrollElementRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const scrollHandler = (e: any): void => {
-    if (e.target.documentElement.scrollTop < 50) {
-      setIsMyFetchingUp(true);
+  useLayoutEffect(() => {
+    function handlerScroll(e: Event) {
+      const scrollElement = (e.target as Document).documentElement;
+
+      if (scrollElement === null) {
+        return;
+      }
+
+      const scrollTop = scrollElement!.scrollTop;
+
+      setScrollTop(scrollTop);
     }
+
+    document.addEventListener('scroll', handlerScroll);
+    return () => document.removeEventListener('scroll', handlerScroll);
+  }, [isPageUploading]);
+
+  const virtualItems = useMemo(() => {
+    const rangeStart = scrollTop;
+    const rangeEnd = scrollTop + containerHeight;
+
+    let startIndex = Math.floor(rangeStart / itemHeight);
+    let endIndex = Math.ceil(rangeEnd / itemHeight);
+
+    startIndex = Math.max(0, startIndex - overscan);
+    endIndex = Math.min((allItems?.length || 0) - 1, endIndex + overscan);
+
     if (
-      e.target.documentElement.scrollHeight -
-        e.target.documentElement.scrollTop -
-        window.innerHeight <
-      50
+      allItems.length &&
+      endIndex > allItems.length - overscan &&
+      !isPageUploading
     ) {
-      setIsFetchingDown(true);
-      window.scrollTo(
-        0,
-        e.target.documentElement.scrollHeight +
-          e.target.documentElement.scrollTop
-      );
+      setPage(page + 1);
+      setIsPageUploading(true);
     }
-  };
+
+    const virtualItems = [];
+    for (let index = startIndex; index <= endIndex; index++) {
+      virtualItems.push({
+        index,
+        offsetTop: index * itemHeight,
+      });
+    }
+
+    return virtualItems;
+  }, [scrollTop, allItems?.length]);
 
   return (
-    <main className="posts">
-      <div className="posts__item">
-        {posts?.map((post: IPost) => (
-          <Post post={post} key={post.id} />
-        ))}
-      </div>
-      {isLoading && <div>Загрузка данных</div>}
+    <main className="posts" ref={scrollElementRef}>
+      {virtualItems?.map((virtualItem) => {
+        const post = (allItems || [])[virtualItem.index];
+        return (
+          <section
+            className="posts__item"
+            style={{
+              transform: `translateY(${virtualItem.offsetTop}px)`,
+            }}
+          >
+            <Post post={post} key={post.id} />
+          </section>
+        );
+      })}
     </main>
   );
 }
