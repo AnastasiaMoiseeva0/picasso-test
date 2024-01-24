@@ -2,5 +2,5 @@
 /.vscode
 node_modules
 public
-build
+dist
 .eslintrc.cjs
