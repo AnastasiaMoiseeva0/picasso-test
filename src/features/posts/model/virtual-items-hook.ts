@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { overscan } from '../../../shared/consts';
+import { OVERSCAN } from '../../../shared/utils/consts';
 
 export type VirtialItem<T> = {
   data: T;
@@ -23,12 +23,12 @@ export default function useVirtualItemsHook<T>(
     let startIndex = Math.floor(rangeStart / itemHeight);
     let endIndex = Math.ceil(rangeEnd / itemHeight);
 
-    startIndex = Math.max(0, startIndex - overscan);
-    endIndex = Math.min((allItems?.length || 0) - 1, endIndex + overscan);
+    startIndex = Math.max(0, startIndex - OVERSCAN);
+    endIndex = Math.min((allItems?.length || 0) - 1, endIndex + OVERSCAN);
 
     if (
       allItems.length &&
-      endIndex > allItems.length - overscan &&
+      endIndex > allItems.length - OVERSCAN &&
       !isPageUploading
     ) {
       setPage(page + 1);
